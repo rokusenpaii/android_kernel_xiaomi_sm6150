@@ -1,9 +1,9 @@
 name: Kernel Compiling CI
 on:
   push:
-    branches: [ "lineage-20" ]
+    branches: [ "lineage-20-LN8K" ]
   pull_request:
-    branches: [ "lineage-20" ]
+    branches: [ "lineage-20-LN8K" ]
   workflow_dispatch:
 jobs:
   build:
@@ -79,7 +79,7 @@ jobs:
           mv "$KERNEL_IMG" $DIR/AK_DIR/Image
           mv "$KERNEL_DTBO" $DIR/AK_DIR/dtbo.img
           cat $DIR/out/arch/arm64/boot/dts/qcom/*.dtb > $DIR/AK_DIR/dtb
-          ZIP_NAME=Vertigo-v0.3beta-$DEVICE-$(date +%Y-%m-%d_%H%M).zip
+          ZIP_NAME=Vertigo-v0.3beta-$DEVICE-LN8K-$(date +%Y-%m-%d_%H%M).zip
           zip -r9 "$ZIP_NAME" ./* -x .git README.md ./*placeholder
           echo -e "\n> ZIP DONE.\n> File: $ZIP_NAME"
           curl -# -w "\n" -T $ZIP_NAME https://temp.sh
