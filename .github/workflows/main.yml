@@ -16,7 +16,7 @@ jobs:
           git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git -b lineage-19.1  GCC --depth=1
           git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git -b lineage-19.1  GCC32 --depth=1
           git clone https://github.com/rokusenpaislab/anykernel.git AK_DIR  --depth=1
-          git clone https://github.com/Nicklas373/aosp-clang.git -b r412851  CLANG_DIR  --depth=1
+          git clone https://gitlab.com/ImSurajxD/clang-r450784d.git -b master  CLANG_DIR  --depth=1
           git clone https://android.googlesource.com/platform/system/libufdt scripts/ufdt/libufdt --depth=1
 
       - name: Compiling
@@ -30,7 +30,7 @@ jobs:
           export KBUILD_BUILD_USER=user
           export KBUILD_BUILD_HOST=user
           PATH=$DIR/CLANG_DIR/bin:$DIR/GCC32/bin:$DIR/GCC/bin:${PATH}
-          KERNEL_IMG=$DIR/out/arch/$ARCH/boot/Image.gz-dtb
+          KERNEL_IMG=$DIR/out/arch/$ARCH/boot/Image
           KERNEL_DTBO=$DIR/out/arch/$ARCH/boot/dtbo.img
           DEVICE="sweet"
           [[ ! -d out ]] && mkdir out
@@ -55,6 +55,9 @@ jobs:
                       CROSS_COMPILE=$CROSS_COMPILE \
                       CROSS_COMPILE_COMPACT=$CROSS_COMPILE_ARM32 \
                       CC=$DIR/CLANG_DIR/bin/clang \
+                      LD=ld.lld \
+                      LLVM=1 \
+                      LLVM_IAS=1 \
                       CLANG_TRIPLE=aarch64-linux-gnu- Image.gz-dtb 2>&1  |& tee error.log
           BUILD_END=$(date +"%s")
           DIFF=$((BUILD_END - BUILD_START))
@@ -73,8 +76,9 @@ jobs:
           echo -e "\n> Build successful! generating flashable zip..."
           cd $DIR/AK_DIR || echo -e "\nAnykernel directory does not exist" || exit 1
           git clean -fd
-          mv "$KERNEL_IMG" $DIR/AK_DIR/Image.gz-dtb
+          mv "$KERNEL_IMG" $DIR/AK_DIR/Image
           mv "$KERNEL_DTBO" $DIR/AK_DIR/dtbo.img
+          cat $DIR/out/arch/arm64/boot/dts/qcom/*.dtb > $DIR/AK_DIR/dtb
           ZIP_NAME=Vertigo-v0.3beta-$DEVICE-$(date +%Y-%m-%d_%H%M).zip
           zip -r9 "$ZIP_NAME" ./* -x .git README.md ./*placeholder
           echo -e "\n> ZIP DONE.\n> File: $ZIP_NAME"
