@@ -2957,7 +2957,7 @@ static void ds_romid_work(struct work_struct *work)
 		retry_ds_romid++;
 		if (retry_ds_romid < DS_ROMID_COUNT_MAX) {
 			pr_err("battery authentic work begin to restart.\n");
-			schedule_delayed_work(&chip->ds_romid_work,
+			queue_delayed_work(system_power_efficient_wq, &chip->ds_romid_work,
 				msecs_to_jiffies(ds_romid_period_ms));
 		}
 
@@ -2991,7 +2991,7 @@ static void ds_status_work(struct work_struct *work)
 		retry_ds_status++;
 		if (retry_ds_status < DS_STATUS_COUNT_MAX) {
 			pr_err("battery authentic work begin to restart.\n");
-			schedule_delayed_work(&chip->ds_status_work,
+			queue_delayed_work(system_power_efficient_wq, &chip->ds_status_work,
 				msecs_to_jiffies(ds_status_period_ms));
 		}
 
@@ -3025,7 +3025,7 @@ static void ds_page0_work(struct work_struct *work)
 		retry_ds_page0++;
 		if (retry_ds_page0 < DS_PAGE0_COUNT_MAX) {
 			pr_err("battery authentic work begin to restart.\n");
-			schedule_delayed_work(&chip->ds_page0_work,
+			queue_delayed_work(system_power_efficient_wq, &chip->ds_page0_work,
 				msecs_to_jiffies(ds_page0_period_ms));
 		}
 
@@ -3079,7 +3079,7 @@ static void profile_load_work(struct work_struct *work)
 		if (rc < 0) {
 			pr_err("Error in restoring cycle_count, rc=%d\n", rc);
 		}
-		schedule_delayed_work(&chip->ttf->ttf_work, 10000);
+		queue_delayed_work(system_power_efficient_wq, &chip->ttf->ttf_work, 10000);
 
 		qg_determine_pon_soc(chip);
 		qg_post_init(chip);
@@ -3091,7 +3091,7 @@ static void profile_load_work(struct work_struct *work)
 		retry_batt_profile++;
 		if (retry_batt_profile < BATT_PROFILE_RETRY_COUNT_MAX) {
 			pr_err("profile_load_work begin to restart.\n");
-			schedule_delayed_work(&chip->profile_load_work,
+			queue_delayed_work(system_power_efficient_wq, &chip->profile_load_work,
 					msecs_to_jiffies(profile_load_period_ms));
 		}
 	}
@@ -5182,7 +5182,7 @@ static void soc_monitor_work(struct work_struct *work)
 			chip->param.batt_soc, chip->param.batt_raw_soc,
 			chip->param.batt_ma, chip->charge_status);
 
-	schedule_delayed_work(&chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_PER_MS));
+	queue_delayed_work(system_power_efficient_wq, &chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_PER_MS));
 }
 
 #define FORCE_SHUTDOWN_COUNT	10
@@ -5242,7 +5242,7 @@ static void force_shutdown_work(struct work_struct *work)
 		delay = URGENT_DELAY_MS;
 
 schedule_work:
-	schedule_delayed_work(&chip->force_shutdown_work, msecs_to_jiffies(delay));
+	queue_delayed_work(system_power_efficient_wq, &chip->force_shutdown_work, msecs_to_jiffies(delay));
 }
 
 static int process_suspend(struct qpnp_qg *chip)
@@ -5355,7 +5355,7 @@ static int process_resume(struct qpnp_qg *chip)
 	sleep_time_secs = rtc_sec - chip->suspend_time;
 
 	if (chip->dt.qg_sleep_config)
-		schedule_delayed_work(&chip->qg_sleep_exit_work,
+		queue_delayed_work(system_power_efficient_wq, &chip->qg_sleep_exit_work,
 				msecs_to_jiffies(QG_SLEEP_EXIT_TIME_MS));
 
 	rc = qg_read(chip, chip->qg_base + QG_STATUS2_REG, &status2, 1);
@@ -5412,7 +5412,7 @@ static int process_resume(struct qpnp_qg *chip)
 		chip->suspend_data = false;
 	}
 
-	schedule_delayed_work(&chip->ttf->ttf_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &chip->ttf->ttf_work, 0);
 
 	return rc;
 }
@@ -5480,10 +5480,10 @@ static int qpnp_qg_resume(struct device *dev)
 			QG_INIT_STATE_IRQ_DISABLE, false, 0);
 
 	chip->param.update_now = true;
-	schedule_delayed_work(&chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_MS));
+	queue_delayed_work(system_power_efficient_wq, &chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_MS));
 
 	chip->force_shutdown == false;
-	schedule_delayed_work(&chip->force_shutdown_work, msecs_to_jiffies(URGENT_DELAY_MS));
+	queue_delayed_work(system_power_efficient_wq, &chip->force_shutdown_work, msecs_to_jiffies(URGENT_DELAY_MS));
 	return 0;
 }
 
@@ -5607,7 +5607,7 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 #ifdef CONFIG_BATT_VERIFY_BY_DS28E16
 	if (!chip->dt.qg_page0_unused) {
 		if (chip->profile_judge_done == false) {
-			schedule_delayed_work(&chip->profile_load_work,
+			queue_delayed_work(system_power_efficient_wq, &chip->profile_load_work,
 						msecs_to_jiffies(0));
 		}
 	}
@@ -5653,7 +5653,7 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 			pr_err("Error in restoring cycle_count, rc=%d\n", rc);
 			return rc;
 		}
-		schedule_delayed_work(&chip->ttf->ttf_work, 10000);
+		queue_delayed_work(system_power_efficient_wq, &chip->ttf->ttf_work, 10000);
 	}
 
 	rc = qg_determine_pon_soc(chip);
@@ -5714,10 +5714,10 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 	}
 
 	chip->param.batt_soc = -EINVAL;
-	schedule_delayed_work(&chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_MS));
+	queue_delayed_work(system_power_efficient_wq, &chip->soc_monitor_work, msecs_to_jiffies(MONITOR_SOC_WAIT_MS));
 
 	chip->force_shutdown == false;
-	schedule_delayed_work(&chip->force_shutdown_work, msecs_to_jiffies(URGENT_DELAY_MS));
+	queue_delayed_work(system_power_efficient_wq, &chip->force_shutdown_work, msecs_to_jiffies(URGENT_DELAY_MS));
 
 	qg_get_battery_capacity(chip, &soc);
 	pr_info("QG initialized! battery_profile=%s SOC=%d QG_subtype=%d\n",

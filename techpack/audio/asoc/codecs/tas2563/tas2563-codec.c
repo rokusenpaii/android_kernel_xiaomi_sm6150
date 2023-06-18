@@ -1184,7 +1184,7 @@ static int tas2563_set_power_state(struct tas2563_priv *pTAS2563, int state)
 		dev_info(pTAS2563->dev, "IRQ reg is: %d, %d\n", irqreg, __LINE__);
 
 //		pTAS2563->enableIRQ(pTAS2563, true);
-		schedule_delayed_work(&pTAS2563->irq_work, msecs_to_jiffies(10));
+		queue_delayed_work(system_power_efficient_wq, &pTAS2563->irq_work, msecs_to_jiffies(10));
 
 		break;
 
@@ -1501,7 +1501,7 @@ end:
 /* Load default failed, restart later */
 	dev_info(pTAS2563->dev, "%s, %d, ret = %d", __func__, __LINE__, ret);
 	if (ret < 0)
-		schedule_delayed_work(&pTAS2563->irq_work,
+		queue_delayed_work(system_power_efficient_wq, &pTAS2563->irq_work,
 				msecs_to_jiffies(1000));
 	return ret;
 }
@@ -1519,7 +1519,7 @@ static void failsafe(struct tas2563_priv *pTAS2563)
 		pTAS2563->mnRestart ++;
 		msleep(100);
 		dev_err(pTAS2563->dev, "I2C COMM error, restart SmartAmp.\n");
-		schedule_delayed_work(&pTAS2563->irq_work, msecs_to_jiffies(100));
+		queue_delayed_work(system_power_efficient_wq, &pTAS2563->irq_work, msecs_to_jiffies(100));
 		return;
 	}
 	pTAS2563->enableIRQ(pTAS2563, false);

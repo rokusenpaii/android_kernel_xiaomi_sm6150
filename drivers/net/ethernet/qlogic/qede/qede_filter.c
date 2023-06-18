@@ -261,7 +261,7 @@ void qede_process_arfs_filters(struct qede_dev *edev, bool free_fltr)
 #ifdef CONFIG_RFS_ACCEL
 	} else {
 		set_bit(QEDE_SP_ARFS_CONFIG, &edev->sp_flags);
-		schedule_delayed_work(&edev->sp_task,
+		queue_delayed_work(system_power_efficient_wq, &edev->sp_task,
 				      QEDE_SP_TASK_POLL_DELAY);
 #endif
 	}
@@ -507,7 +507,7 @@ int qede_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
 	spin_unlock_bh(&edev->arfs->arfs_list_lock);
 
 	set_bit(QEDE_SP_ARFS_CONFIG, &edev->sp_flags);
-	schedule_delayed_work(&edev->sp_task, 0);
+	queue_delayed_work(system_power_efficient_wq, &edev->sp_task, 0);
 
 	return n->sw_id;
 
@@ -1210,7 +1210,7 @@ void qede_set_rx_mode(struct net_device *ndev)
 	struct qede_dev *edev = netdev_priv(ndev);
 
 	set_bit(QEDE_SP_RX_MODE, &edev->sp_flags);
-	schedule_delayed_work(&edev->sp_task, 0);
+	queue_delayed_work(system_power_efficient_wq, &edev->sp_task, 0);
 }
 
 /* Must be called with qede_lock held */

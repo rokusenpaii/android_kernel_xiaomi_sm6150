@@ -404,7 +404,7 @@ wakeup:
 		if ((sk->sk_state == SMC_CLOSED) &&
 		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
 			smc_conn_free(&smc->conn);
-			schedule_delayed_work(&smc->sock_put_work,
+			queue_delayed_work(system_power_efficient_wq, &smc->sock_put_work,
 					      SMC_CLOSE_SOCK_PUT_DELAY);
 		}
 	}

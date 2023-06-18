@@ -597,7 +597,7 @@ static irqreturn_t musb_stage0_irq(struct musb *musb, u8 int_usb,
 				musb->xceiv->otg->state = OTG_STATE_A_HOST;
 				musb->is_active = 1;
 				musb_host_resume_root_hub(musb);
-				schedule_delayed_work(&musb->finish_resume_work,
+				queue_delayed_work(system_power_efficient_wq, &musb->finish_resume_work,
 					msecs_to_jiffies(USB_RESUME_TIMEOUT));
 				break;
 			case OTG_STATE_B_WAIT_ACON:
@@ -1000,7 +1000,7 @@ b_host:
 	}
 #endif
 
-	schedule_delayed_work(&musb->irq_work, 0);
+	queue_delayed_work(system_power_efficient_wq, &musb->irq_work, 0);
 
 	return handled;
 }
@@ -1866,7 +1866,7 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 	case MUSB_QUIRK_B_DISCONNECT_99:
 		if (musb->quirk_retries && !musb->flush_irq_work) {
 			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
-			schedule_delayed_work(&musb->irq_work,
+			queue_delayed_work(system_power_efficient_wq, &musb->irq_work,
 					      msecs_to_jiffies(1000));
 			musb->quirk_retries--;
 			break;
@@ -1876,7 +1876,7 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 		if (musb->quirk_retries && !musb->flush_irq_work) {
 			musb_dbg(musb,
 				 "Poll devctl on invalid vbus, assume no session");
-			schedule_delayed_work(&musb->irq_work,
+			queue_delayed_work(system_power_efficient_wq, &musb->irq_work,
 					      msecs_to_jiffies(1000));
 			musb->quirk_retries--;
 			return;
@@ -1886,7 +1886,7 @@ static void musb_pm_runtime_check_session(struct musb *musb)
 		if (musb->quirk_retries && !musb->flush_irq_work) {
 			musb_dbg(musb,
 				 "Poll devctl on possible host mode disconnect");
-			schedule_delayed_work(&musb->irq_work,
+			queue_delayed_work(system_power_efficient_wq, &musb->irq_work,
 					      msecs_to_jiffies(1000));
 			musb->quirk_retries--;
 			return;

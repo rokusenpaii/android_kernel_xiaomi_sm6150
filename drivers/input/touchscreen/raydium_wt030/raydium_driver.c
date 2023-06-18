@@ -1608,7 +1608,7 @@ static void raydium_ts_do_resume(void)
 	raydium_irq_control(ENABLE);
 #ifdef ENABLE_DUMP_DATA
 	if (g_u8_dump_flag) {
-		schedule_delayed_work(&g_raydium_ts->dump_work, HZ);
+		queue_delayed_work(system_power_efficient_wq, &g_raydium_ts->dump_work, HZ);
 		g_u8_dump_flag = false;
 	}
 #endif

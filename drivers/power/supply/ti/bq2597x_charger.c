@@ -1522,7 +1522,7 @@ static void bq2597x_monitor_work(struct work_struct *work)
 	struct bq2597x *bq = container_of(work, struct bq2597x,
 						monitor_work.work);
 	bq2597x_dump_reg(bq);
-	schedule_delayed_work(&bq->monitor_work,
+	queue_delayed_work(system_power_efficient_wq, &bq->monitor_work,
 				msecs_to_jiffies(RUNNING_PERIOD_S));
 }
 
@@ -2592,7 +2592,7 @@ static int bq2597x_charger_probe(struct i2c_client *client,
 	}
 
 	determine_initial_status(bq);
-	/* schedule_delayed_work(&bq->monitor_work, 60 * HZ); */
+	/* queue_delayed_work(system_power_efficient_wq, &bq->monitor_work, 60 * HZ); */
 	bq_info("bq2597x probe successfully, Part Num = %d, chip_vendor = %d\n!", bq->part_no, bq->chip_vendor);
 
 	return 0;

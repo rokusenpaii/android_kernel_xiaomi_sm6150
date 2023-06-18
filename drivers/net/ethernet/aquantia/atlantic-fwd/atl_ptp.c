@@ -451,7 +451,7 @@ static int atl_ptp_extts_pin_configure(struct ptp_clock_info *ptp_clock,
 	if (on) {
 		ptp->poll_timeout_ms = POLL_SYNC_TIMER_MS;
 		cancel_delayed_work_sync(&ptp->poll_sync);
-		schedule_delayed_work(&ptp->poll_sync,
+		queue_delayed_work(system_power_efficient_wq, &ptp->poll_sync,
 				      msecs_to_jiffies(ptp->poll_timeout_ms));
 	}
 
@@ -718,7 +718,7 @@ static void atl_ptp_start_work(struct atl_ptp *ptp)
 	if (ptp->extts_pin_enabled) {
 		ptp->poll_timeout_ms = POLL_SYNC_TIMER_MS;
 		ptp->last_sync1588_ts = atl_ptp_get_sync1588_ts(ptp->nic);
-		schedule_delayed_work(&ptp->poll_sync,
+		queue_delayed_work(system_power_efficient_wq, &ptp->poll_sync,
 				      msecs_to_jiffies(ptp->poll_timeout_ms));
 	}
 }
@@ -784,7 +784,7 @@ static void atl_ptp_poll_sync_work_cb(struct work_struct *w)
 	if (ptp->extts_pin_enabled) {
 		unsigned long timeout = msecs_to_jiffies(ptp->poll_timeout_ms);
 
-		schedule_delayed_work(&ptp->poll_sync, timeout);
+		queue_delayed_work(system_power_efficient_wq, &ptp->poll_sync, timeout);
 	}
 }
 

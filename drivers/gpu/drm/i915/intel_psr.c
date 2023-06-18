@@ -577,7 +577,7 @@ void intel_psr_enable(struct intel_dp *intel_dp)
 	 *       exit-activate sequence.
 	 */
 	if (INTEL_GEN(dev_priv) < 9)
-		schedule_delayed_work(&dev_priv->psr.work,
+		queue_delayed_work(system_power_efficient_wq, &dev_priv->psr.work,
 				      msecs_to_jiffies(intel_dp->panel_power_cycle_delay * 5));
 
 	dev_priv->psr.enabled = intel_dp;
@@ -925,7 +925,7 @@ void intel_psr_flush(struct drm_i915_private *dev_priv,
 
 	if (!dev_priv->psr.active && !dev_priv->psr.busy_frontbuffer_bits)
 		if (!work_busy(&dev_priv->psr.work.work))
-			schedule_delayed_work(&dev_priv->psr.work,
+			queue_delayed_work(system_power_efficient_wq, &dev_priv->psr.work,
 					      msecs_to_jiffies(100));
 	mutex_unlock(&dev_priv->psr.lock);
 }

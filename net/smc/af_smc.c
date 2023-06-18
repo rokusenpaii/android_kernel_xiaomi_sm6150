@@ -147,10 +147,10 @@ static int smc_release(struct socket *sock)
 	sock_orphan(sk);
 	sock->sk = NULL;
 	if (smc->use_fallback) {
-		schedule_delayed_work(&smc->sock_put_work, TCP_TIMEWAIT_LEN);
+		queue_delayed_work(system_power_efficient_wq, &smc->sock_put_work, TCP_TIMEWAIT_LEN);
 	} else if (sk->sk_state == SMC_CLOSED) {
 		smc_conn_free(&smc->conn);
-		schedule_delayed_work(&smc->sock_put_work,
+		queue_delayed_work(system_power_efficient_wq, &smc->sock_put_work,
 				      SMC_CLOSE_SOCK_PUT_DELAY);
 	}
 	release_sock(sk);
@@ -703,10 +703,10 @@ void smc_close_non_accepted(struct sock *sk)
 		sock_release(tcp);
 	}
 	if (smc->use_fallback) {
-		schedule_delayed_work(&smc->sock_put_work, TCP_TIMEWAIT_LEN);
+		queue_delayed_work(system_power_efficient_wq, &smc->sock_put_work, TCP_TIMEWAIT_LEN);
 	} else if (sk->sk_state == SMC_CLOSED) {
 		smc_conn_free(&smc->conn);
-		schedule_delayed_work(&smc->sock_put_work,
+		queue_delayed_work(system_power_efficient_wq, &smc->sock_put_work,
 				      SMC_CLOSE_SOCK_PUT_DELAY);
 	}
 	release_sock(sk);

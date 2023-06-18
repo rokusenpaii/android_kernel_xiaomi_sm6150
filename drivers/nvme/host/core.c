@@ -702,7 +702,7 @@ static void nvme_keep_alive_end_io(struct request *rq, blk_status_t status)
 		return;
 	}
 
-	schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
+	queue_delayed_work(system_power_efficient_wq, &ctrl->ka_work, ctrl->kato * HZ);
 }
 
 static int nvme_keep_alive(struct nvme_ctrl *ctrl)
@@ -745,7 +745,7 @@ void nvme_start_keep_alive(struct nvme_ctrl *ctrl)
 		return;
 
 	INIT_DELAYED_WORK(&ctrl->ka_work, nvme_keep_alive_work);
-	schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
+	queue_delayed_work(system_power_efficient_wq, &ctrl->ka_work, ctrl->kato * HZ);
 }
 EXPORT_SYMBOL_GPL(nvme_start_keep_alive);
 

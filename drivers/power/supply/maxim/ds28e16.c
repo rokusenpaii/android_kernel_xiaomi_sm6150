@@ -1882,7 +1882,7 @@ static void battery_verify(struct work_struct *work)
 	} else {
 		data->batt_verified = 0;
 		if (count < VERIFY_MAX_COUNT) {
-			schedule_delayed_work(&data->battery_verify_work,
+			queue_delayed_work(system_power_efficient_wq, &data->battery_verify_work,
 						msecs_to_jiffies(VERIFY_PERIOD_S));
 			ds_info("%s battery verify failed times[%d]", __func__, count);
 			count++;
@@ -1911,7 +1911,7 @@ static void authentic_work(struct work_struct *work)
 		retry_authentic++;
 		if (retry_authentic < AUTHENTIC_COUNT_MAX) {
 			ds_log("battery authentic work begin to restart, retry = %d\n", retry_authentic);
-			schedule_delayed_work(&ds28e16_data->authentic_work,
+			queue_delayed_work(system_power_efficient_wq, &ds28e16_data->authentic_work,
 				msecs_to_jiffies(authentic_period_ms));
 		}
 
@@ -1967,7 +1967,7 @@ static int ds28e16_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, ds28e16_data);
 #ifdef CONFIG_K6_CHARGE
 	INIT_DELAYED_WORK(&ds28e16_data->battery_verify_work, battery_verify);
-	schedule_delayed_work(&ds28e16_data->battery_verify_work, msecs_to_jiffies(0));
+	queue_delayed_work(system_power_efficient_wq, &ds28e16_data->battery_verify_work, msecs_to_jiffies(0));
 #else
 	INIT_DELAYED_WORK(&ds28e16_data->authentic_work, authentic_work);
 #endif
@@ -1988,7 +1988,7 @@ static int ds28e16_probe(struct platform_device *pdev)
 	retval = power_supply_get_property(ds28e16_data->verify_psy,
 					POWER_SUPPLY_PROP_AUTHEN_RESULT, &b_val);
 	if (b_val.intval != true) {
-		schedule_delayed_work(&ds28e16_data->authentic_work,
+		queue_delayed_work(system_power_efficient_wq, &ds28e16_data->authentic_work,
 				msecs_to_jiffies(0));
 	}
 #endif

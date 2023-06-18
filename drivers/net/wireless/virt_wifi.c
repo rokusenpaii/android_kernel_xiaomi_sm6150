@@ -153,7 +153,7 @@ static int virt_wifi_scan(struct wiphy *wiphy,
 		return -EBUSY;
 
 	priv->scan_request = request;
-	schedule_delayed_work(&priv->scan_result, HZ * 2);
+	queue_delayed_work(system_power_efficient_wq, &priv->scan_result, HZ * 2);
 
 	return 0;
 }
@@ -226,7 +226,7 @@ static int virt_wifi_connect(struct wiphy *wiphy, struct net_device *netdev,
 	if (priv->being_deleted || !priv->is_up)
 		return -EBUSY;
 
-	could_schedule = schedule_delayed_work(&priv->connect, HZ * 2);
+	could_schedule = queue_delayed_work(system_power_efficient_wq, &priv->connect, HZ * 2);
 	if (!could_schedule)
 		return -EBUSY;
 

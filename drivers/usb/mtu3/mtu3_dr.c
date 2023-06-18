@@ -396,7 +396,7 @@ int ssusb_otg_switch_init(struct ssusb_mtk *ssusb)
 		ssusb_debugfs_init(ssusb);
 
 	/* It is enough to delay 1s for waiting for host initialization */
-	schedule_delayed_work(&otg_sx->extcon_reg_dwork, HZ);
+	queue_delayed_work(system_power_efficient_wq, &otg_sx->extcon_reg_dwork, HZ);
 
 	return 0;
 }

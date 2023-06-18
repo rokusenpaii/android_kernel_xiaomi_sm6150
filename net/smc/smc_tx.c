@@ -407,7 +407,7 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
 				goto out_unlock;
 			}
 			rc = 0;
-			schedule_delayed_work(&conn->tx_work,
+			queue_delayed_work(system_power_efficient_wq, &conn->tx_work,
 					      SMC_TX_WORK_DELAY);
 		}
 		goto out_unlock;
@@ -470,7 +470,7 @@ void smc_tx_consumer_update(struct smc_connection *conn)
 		if (!rc)
 			rc = smc_cdc_msg_send(conn, wr_buf, pend);
 		if (rc < 0) {
-			schedule_delayed_work(&conn->tx_work,
+			queue_delayed_work(system_power_efficient_wq, &conn->tx_work,
 					      SMC_TX_WORK_DELAY);
 			return;
 		}

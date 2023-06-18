@@ -1417,7 +1417,7 @@ static void goodix_ts_esd_work(struct work_struct *work)
 	}
 	mutex_lock(&ts_esd->esd_mutex);
 	if (ts_esd->esd_on)
-		schedule_delayed_work(&ts_esd->esd_work, GOODIX_ESD_CHECK_INTERVAL * HZ);
+		queue_delayed_work(system_power_efficient_wq, &ts_esd->esd_work, GOODIX_ESD_CHECK_INTERVAL * HZ);
 	mutex_unlock(&ts_esd->esd_mutex);
 }
 
@@ -1434,7 +1434,7 @@ static void goodix_ts_esd_on(struct goodix_ts_core *core)
 	mutex_lock(&ts_esd->esd_mutex);
 	if (ts_esd->esd_on == false) {
 		ts_esd->esd_on = true;
-		schedule_delayed_work(&ts_esd->esd_work, GOODIX_ESD_CHECK_INTERVAL * HZ);
+		queue_delayed_work(system_power_efficient_wq, &ts_esd->esd_work, GOODIX_ESD_CHECK_INTERVAL * HZ);
 		mutex_unlock(&ts_esd->esd_mutex);
 		ts_info("Esd on");
 		return;

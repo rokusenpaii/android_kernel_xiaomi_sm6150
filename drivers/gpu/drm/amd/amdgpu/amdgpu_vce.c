@@ -318,7 +318,7 @@ static void amdgpu_vce_idle_work_handler(struct work_struct *work)
 							    AMD_CG_STATE_GATE);
 		}
 	} else {
-		schedule_delayed_work(&adev->vce.idle_work, VCE_IDLE_TIMEOUT);
+		queue_delayed_work(system_power_efficient_wq, &adev->vce.idle_work, VCE_IDLE_TIMEOUT);
 	}
 }
 
@@ -363,7 +363,7 @@ void amdgpu_vce_ring_begin_use(struct amdgpu_ring *ring)
  */
 void amdgpu_vce_ring_end_use(struct amdgpu_ring *ring)
 {
-	schedule_delayed_work(&ring->adev->vce.idle_work, VCE_IDLE_TIMEOUT);
+	queue_delayed_work(system_power_efficient_wq, &ring->adev->vce.idle_work, VCE_IDLE_TIMEOUT);
 }
 
 /**

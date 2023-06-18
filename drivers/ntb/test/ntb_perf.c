@@ -160,7 +160,7 @@ static void perf_link_event(void *ctx)
 	struct perf_ctx *perf = ctx;
 
 	if (ntb_link_is_up(perf->ntb, NULL, NULL) == 1) {
-		schedule_delayed_work(&perf->link_work, 2*HZ);
+		queue_delayed_work(system_power_efficient_wq, &perf->link_work, 2*HZ);
 	} else {
 		dev_dbg(&perf->ntb->pdev->dev, "link down\n");
 
@@ -556,7 +556,7 @@ out1:
 
 out:
 	if (ntb_link_is_up(ndev, NULL, NULL) == 1)
-		schedule_delayed_work(&perf->link_work,
+		queue_delayed_work(system_power_efficient_wq, &perf->link_work,
 				      msecs_to_jiffies(PERF_LINK_DOWN_TIMEOUT));
 }
 

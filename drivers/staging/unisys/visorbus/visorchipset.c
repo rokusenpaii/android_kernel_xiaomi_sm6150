@@ -1708,7 +1708,7 @@ schedule_out:
 					      POLLJIFFIES_CONTROLVMCHANNEL_FAST;
 	}
 
-	schedule_delayed_work(&chipset_dev->periodic_controlvm_work,
+	queue_delayed_work(system_power_efficient_wq, &chipset_dev->periodic_controlvm_work,
 			      chipset_dev->poll_jiffies);
 }
 
@@ -1754,7 +1754,7 @@ static int visorchipset_init(struct acpi_device *acpi_device)
 
 	chipset_dev->most_recent_message_jiffies = jiffies;
 	chipset_dev->poll_jiffies = POLLJIFFIES_CONTROLVMCHANNEL_FAST;
-	schedule_delayed_work(&chipset_dev->periodic_controlvm_work,
+	queue_delayed_work(system_power_efficient_wq, &chipset_dev->periodic_controlvm_work,
 			      chipset_dev->poll_jiffies);
 
 	err = visorbus_init();

@@ -742,7 +742,7 @@ static void smi_work_func(struct work_struct *work)
 	input_event(client_data->input, EV_REL, REL_Z, data.z);
 	input_sync(client_data->input);
 
-	schedule_delayed_work(&client_data->work, delay);
+	queue_delayed_work(system_power_efficient_wq, &client_data->work, delay);
 }
 
 static ssize_t smi130_chip_id_show(struct device *dev,
@@ -1253,7 +1253,7 @@ static ssize_t smi130_enable_store(struct device *dev,
 		if (pre_enable == 0) {
 			smi130_set_acc_op_mode(client_data,
 							SMI_ACC_PM_NORMAL);
-			schedule_delayed_work(&client_data->work,
+			queue_delayed_work(system_power_efficient_wq, &client_data->work,
 			msecs_to_jiffies(atomic_read(&client_data->delay)));
 			atomic_set(&client_data->wkqueue_en, 1);
 		}
@@ -3421,7 +3421,7 @@ static irqreturn_t smi_irq_handler(int irq, void *handle)
 	if ((in_suspend_copy == 1) &&
 		(client_data->sig_flag == 1)) {
 		/*wake_lock_timeout(&client_data->wakelock, HZ);*/
-		schedule_delayed_work(&client_data->delay_work_sig,
+		queue_delayed_work(system_power_efficient_wq, &client_data->delay_work_sig,
 			msecs_to_jiffies(50));
 	}
 	schedule_work(&client_data->irq_work);
@@ -4034,7 +4034,7 @@ static int smi_post_resume(struct smi_client_data *client_data)
 
 	if (atomic_read(&client_data->wkqueue_en) == 1) {
 		smi130_set_acc_op_mode(client_data, SMI_ACC_PM_NORMAL);
-		schedule_delayed_work(&client_data->work,
+		queue_delayed_work(system_power_efficient_wq, &client_data->work,
 				msecs_to_jiffies(
 					atomic_read(&client_data->delay)));
 	}
